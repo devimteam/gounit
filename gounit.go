@@ -11,6 +11,8 @@ const (
 )
 
 type GoUnit interface {
+    // AssertArrayHasKey Reports an error identified by "message" if "array" does
+    // not have the "key".
 	AssertArrayHasKey(key interface{}, array interface{}, message string)
 	AssertContains(value interface{}, array interface{}, message string)
 	AssertCount(count int, array interface{}, message string)
