@@ -7,9 +7,11 @@ import (
 )
 
 const (
+    // EmptyMessage not show message for assert
 	EmptyMessage = ""
 )
 
+// GoUnit assert helper
 type GoUnit interface {
 	// AssertArrayHasKey Reports an error identified by "message" if "array" does
 	// not have the "key".
@@ -60,6 +62,7 @@ type goUnit struct {
 	tb testing.TB
 }
 
+// New create new instance GoUnit
 func New(tb testing.TB) GoUnit {
 	return &goUnit{tb: tb}
 }
