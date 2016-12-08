@@ -1,6 +1,8 @@
 GoUnit
 ========
 
+[![GoDoc](https://godoc.org/github.com/l-vitaly/gounit?status.svg)](https://godoc.org/github.com/l-vitaly/gounit)
+
 GoUnit is a testing helper library for Go. 
 
 ### Getting started
