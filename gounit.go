@@ -2,9 +2,12 @@ package gounit
 
 import (
 	"testing"
+    "reflect"
 
 	"github.com/l-vitaly/gounit/gounitсonstraint"
 )
+
+type TestCaseFunc func(i interface{})
 
 const (
     // EmptyMessage not show message for assert
@@ -56,33 +59,35 @@ type GoUnit interface {
 	AssertError(err error, message string)
 	// AssertNotError Reports an error identified by "message" if "err" is not error type
 	AssertNotError(err error, message string)
+    // TestCase
+    TestCase(x interface{}, fn TestCaseFunc)
 }
 
 type goUnit struct {
-	tb testing.TB
+	e gounitсonstraint.Evaluator
 }
 
 // New create new instance GoUnit
 func New(tb testing.TB) GoUnit {
-	return &goUnit{tb: tb}
+    e := gounitсonstraint.NewEvaluator(tb)
+	return &goUnit{e: e}
 }
 
 func (u *goUnit) AssertTrue(cond bool, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsTrue()).Evaluate(cond, message)
+    u.e.Evaluate(gounitсonstraint.NewIsTrue(), cond, message)
 }
 
 func (u *goUnit) AssertFalse(cond bool, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsFalse()).Evaluate(cond, message)
+    u.e.Evaluate(gounitсonstraint.NewIsFalse(), cond, message)
 }
 
 func (u *goUnit) AssertError(err error, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsError()).
-		Evaluate(err, message)
+    u.e.Evaluate(gounitсonstraint.NewIsError(), err, message)
 }
 
 func (u *goUnit) AssertNotError(err error, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewNot(gounitсonstraint.NewIsError())).
-		Evaluate(err, message)
+    c := gounitсonstraint.NewNot(gounitсonstraint.NewIsError())
+    u.e.Evaluate(c, err, message)
 }
 
 func (u *goUnit) AssertLessThanOrEqual(expected, actual int, message string) {
@@ -90,13 +95,11 @@ func (u *goUnit) AssertLessThanOrEqual(expected, actual int, message string) {
 		gounitсonstraint.NewIsEquals(expected),
 		gounitсonstraint.NewIsLessThan(expected),
 	}
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewOr(constraints)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewOr(constraints), actual, message)
 }
 
 func (u *goUnit) AssertLessThan(expected, actual int, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsLessThan(expected)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewIsLessThan(expected), actual, message)
 }
 
 func (u *goUnit) AssertGreaterThanOrEqual(expected, actual int, message string) {
@@ -104,51 +107,51 @@ func (u *goUnit) AssertGreaterThanOrEqual(expected, actual int, message string) 
 		gounitсonstraint.NewIsEquals(expected),
 		gounitсonstraint.NewIsGreaterThan(expected),
 	}
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewOr(constraints)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewOr(constraints), actual, message)
 }
 
 func (u *goUnit) AssertGreaterThan(expected, actual int, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsGreaterThan(expected)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewIsGreaterThan(expected), actual, message)
 }
 
 func (u *goUnit) AssertFileEquals(expected string, actual string, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsFileEquals(expected)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewIsFileEquals(expected), actual, message)
 }
 
 func (u *goUnit) AssertEquals(expected interface{}, actual interface{}, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsEquals(expected)).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewIsEquals(expected), actual, message)
 }
 
 func (u *goUnit) AssertEmpty(actual interface{}, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewIsEmpty()).
-		Evaluate(actual, message)
+    u.e.Evaluate(gounitсonstraint.NewIsEmpty(), actual, message)
 }
 
 func (u *goUnit) AssertFileExists(filename string, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewFileExists()).
-		Evaluate(filename, message)
+    u.e.Evaluate(gounitсonstraint.NewFileExists(), filename, message)
 }
 
 func (u *goUnit) AssertDirectoryExists(dir string, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewDirectoryExists()).
-		Evaluate(dir, message)
+    u.e.Evaluate(gounitсonstraint.NewDirectoryExists(), dir, message)
 }
 
 func (u *goUnit) AssertCount(expectedCount int, array interface{}, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewCount(expectedCount)).
-		Evaluate(array, message)
+    u.e.Evaluate(gounitсonstraint.NewCount(expectedCount), array, message)
 }
 
 func (u *goUnit) AssertContains(needle interface{}, array interface{}, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewContains(needle)).
-		Evaluate(array, message)
+    u.e.Evaluate(gounitсonstraint.NewContains(needle), array, message)
 }
 
 func (u *goUnit) AssertArrayHasKey(key interface{}, array interface{}, message string) {
-	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewMapHasKey(key)).
-		Evaluate(array, message)
+    u.e.Evaluate(gounitсonstraint.NewMapHasKey(key), array, message)
+}
+
+func (*goUnit) TestCase(x interface{}, fn TestCaseFunc)  {
+    if reflect.TypeOf(x).Kind() != reflect.Slice {
+        panic("x expects is slice")
+    }
+    vTestCase := reflect.ValueOf(x)
+    for i := 0; i < vTestCase.Len(); i++ {
+        fn(vTestCase.Index(i).Interface())
+    }
 }
