@@ -12,62 +12,62 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(other interface{}, description string)
+	Evaluate(c Constraint, other interface{}, description string)
 }
 
 type evaluator struct {
-	c  Constraint
 	tb testing.TB
 }
 
-func NewEvaluator(tb testing.TB, c Constraint) Evaluator {
-	return &evaluator{c: c, tb: tb}
+func NewEvaluator(tb testing.TB) Evaluator {
+	return &evaluator{tb: tb}
 }
 
-func (e *evaluator) Evaluate(other interface{}, description string) {
+func (e *evaluator) Evaluate(c Constraint, other interface{}, description string) {
 	_, file, line, _ := runtime.Caller(2)
 
     begin := time.Now()
-    ok := !e.c.Matches(other)
-    leadLime := time.Now().Sub(begin).Seconds()
-	if ok {
-		e.fail(other, file, line, leadLime, description)
+    result := c.Matches(other)
+    leadLime := int(time.Now().Sub(begin).Nanoseconds() / 1000)
+
+	if !result {
+        err := c.Error(other)
+        if err == nil {
+            err = e.getError(c, other)
+        }
+
+        msg := e.makeMessage(true, file, line, leadLime, err.Error(), description)
+        fmt.Println(msg)
+		e.tb.FailNow()
 	} else {
-		e.success(file, line, leadLime, description)
-	}
+        msg := e.makeMessage(false, file, line, leadLime, c.String(), description)
+        fmt.Println(msg)
+    }
 }
-func (e *evaluator) getError(other interface{}) error {
-	return errors.New(fmt.Sprintf("%#v", other) + " " + e.c.String())
-}
-
-func (e *evaluator) success(file string, line int, leadLime float64, description string) {
-	successMsg := fmt.Sprintf("Success asserting that %s.", e.c.String())
-    successMsg = e.rightPad(successMsg, " ", 80)
-	successMsg = ansi.Color(successMsg, "green:")
-	if description != "" {
-		successMsg = "\n" + ansi.Color(description, ":blue") + "\n" + successMsg
-	}
-	successMsg = successMsg + ansi.Color(fmt.Sprintf("(%s:%d)", filepath.Base(file), line), "white+b:")
-    successMsg = successMsg + " " + fmt.Sprintf("%fs.", leadLime)
-	fmt.Println(ansi.Color("+", "green+b:") + successMsg)
+func (e *evaluator) getError(c Constraint, other interface{}) error {
+	return errors.New(fmt.Sprintf("%#v", other) + " " + c.String())
 }
 
-func (e *evaluator) fail(other interface{}, file string, line int, leadLime float64, description string) {
-	err := e.c.Error(other)
-	if err == nil {
-		err = e.getError(other)
-	}
+func (e *evaluator) makeMessage(isError bool, file string, line int, leadLime int, message string, description string) string {
+    title := "+Success"
+    color := "green"
+    if isError {
+        title = "-Failed"
+        color = "red"
+    }
+    msg := ansi.Color(fmt.Sprintf("%s asserting that %s.", title, message), color + ":")
 
-	errorMsg := fmt.Sprintf("Failed asserting that %s.", err.Error())
-    errorMsg = e.rightPad(errorMsg, " ", 80)
-	errorMsg = ansi.Color(errorMsg, "red:")
-	if description != "" {
-		errorMsg = "\n" + ansi.Color(description, ":blue") + "\n" + errorMsg
-	}
-	errorMsg = errorMsg + ansi.Color(fmt.Sprintf("(%s:%d)", filepath.Base(file), line), "white+b:")
-    errorMsg = errorMsg + " " + fmt.Sprintf("%fs.", leadLime)
-	fmt.Println(ansi.Color("-", "red+b:") + errorMsg)
-	e.tb.FailNow()
+    if description != "" {
+        msg = ansi.Color(description, "blue:") + "\n" + msg
+    }
+
+    if isError {
+        msg = msg + fmt.Sprintf("\n\n%s:%d", filepath.Base(file), line)
+    }
+
+    msg = msg + fmt.Sprintf("\n\nTime: %d ms", leadLime)
+
+    return msg + "\n"
 }
 
 func (e *evaluator) rightPad(str, pad string, lenght int) string {
