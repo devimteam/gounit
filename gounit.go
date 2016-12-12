@@ -2,9 +2,12 @@ package gounit
 
 import (
 	"testing"
+    "reflect"
 
 	"github.com/l-vitaly/gounit/gounitсonstraint"
 )
+
+type TestCaseFunc func(i interface{})
 
 const (
     // EmptyMessage not show message for assert
@@ -56,6 +59,8 @@ type GoUnit interface {
 	AssertError(err error, message string)
 	// AssertNotError Reports an error identified by "message" if "err" is not error type
 	AssertNotError(err error, message string)
+    // TestCase
+    TestCase(x interface{}, fn TestCaseFunc)
 }
 
 type goUnit struct {
@@ -151,4 +156,14 @@ func (u *goUnit) AssertContains(needle interface{}, array interface{}, message s
 func (u *goUnit) AssertArrayHasKey(key interface{}, array interface{}, message string) {
 	gounitсonstraint.NewEvaluator(u.tb, gounitсonstraint.NewMapHasKey(key)).
 		Evaluate(array, message)
+}
+
+func (*goUnit) TestCase(x interface{}, fn TestCaseFunc)  {
+    if reflect.TypeOf(x).Kind() != reflect.Slice {
+        panic("x expects is slice")
+    }
+    vTestCase := reflect.ValueOf(x)
+    for i := 0; i < vTestCase.Len(); i++ {
+        fn(vTestCase.Index(i).Interface())
+    }
 }
