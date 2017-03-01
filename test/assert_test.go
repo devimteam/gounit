@@ -12,16 +12,6 @@ type testStruct struct {
 	Field2 int
 }
 
-func TestAssertIsTrue(t *testing.T) {
-	u := gounit.New(t)
-	u.AssertTrue(true, gounit.EmptyMessage)
-}
-
-func TestAssertFalse(t *testing.T) {
-	u := gounit.New(t)
-	u.AssertFalse(false, gounit.EmptyMessage)
-}
-
 func TestAssertArrayHasKey(t *testing.T) {
 	u := gounit.New(t)
 	testArray := map[string]int{"foo": 0}
@@ -105,4 +95,11 @@ func TestAssertError(t *testing.T) {
 func TestAssertNotError(t *testing.T) {
 	u := gounit.New(t)
 	u.AssertNotError(nil, gounit.EmptyMessage)
+}
+
+func TestAssertNot(t *testing.T) {
+	u := gounit.New(t)
+	u.AssertNotNil("", gounit.EmptyMessage)
+	u.AssertNotNil(0, gounit.EmptyMessage)
+	u.AssertNotNil(false, gounit.EmptyMessage)
 }
