@@ -8,11 +8,8 @@ func NewIsError() *isError {
 }
 
 func (*isError) Matches(other interface{}) bool {
-	if other != nil {
-		_, ok := other.(error)
-		return ok
-	}
-	return false
+    _, ok := other.(error)
+    return ok
 }
 
 func (*isError) Error(other interface{}) error {

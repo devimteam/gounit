@@ -60,9 +60,9 @@ type GoUnit interface {
 	// AssertNotError Reports an error identified by "message" if "err" is not error type
 	AssertNotError(err error, message string)
 	// AssertIsNil Reports an error identified by "message" if "cond" is not nil.
-	AssertIsNil(cond interface{}, message string)
+	AssertNil(cond interface{}, message string)
 	// AssertIsNotNil Reports an error identified by "message" if "cond" is nil.
-	AssertIsNotNil(cond interface{}, message string)
+	AssertNotNil(cond interface{}, message string)
 	// TestCase
 	TestCase(x interface{}, fn TestCaseFunc)
 }
@@ -150,11 +150,11 @@ func (u *goUnit) AssertArrayHasKey(key interface{}, array interface{}, message s
 	u.e.Evaluate(gounitсonstraint.NewMapHasKey(key), array, message)
 }
 
-func (u *goUnit) AssertIsNil(cond interface{}, message string) {
+func (u *goUnit) AssertNil(cond interface{}, message string) {
 	u.e.Evaluate(gounitсonstraint.NewIsNil(), cond, message)
 }
 
-func (u *goUnit) AssertIsNotNil(cond interface{}, message string) {
+func (u *goUnit) AssertNotNil(cond interface{}, message string) {
 	c := gounitсonstraint.NewNot(gounitсonstraint.NewIsNil())
 	u.e.Evaluate(c, cond, message)
 }
