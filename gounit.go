@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/l-vitaly/gounit/gounitсonstraint"
+	"github.com/devimteam/gounit/gounitсonstraint"
 )
 
 type TestCaseFunc func(i interface{})
