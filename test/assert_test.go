@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/l-vitaly/gounit"
+	"github.com/devimteam/gounit"
 )
 
 type testStruct struct {

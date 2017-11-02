@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/l-vitaly/gounit"
-	"github.com/l-vitaly/gounit/gounitсonstraint"
+	"github.com/devimteam/gounit"
+	"github.com/devimteam/gounit/gounitсonstraint"
 )
 
 type nilTestData struct {
